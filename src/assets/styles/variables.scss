@@ -1,0 +1,37 @@
+$main: #20242F;
+$title: #e6a23c;
+
+/*文本格式化，超出范围，显示省略号*/
+@mixin textOverflow($width: 100%, $display: block) {
+  width: $width;
+  display: $display;
+  white-space: nowrap;
+  -ms-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+/*弹性盒子（传入null不设置该属性）*/
+@mixin flexBox($direction: row, $justify: null, $align: null, $flex-wrap: null) {
+  display: flex;
+
+  @if ($direction !=null) {
+    flex-direction: $direction;
+  }
+
+  @if ($justify !=null) {
+    justify-content: $justify;
+  }
+
+  @if ($align !=null) {
+    align-items: $align;
+  }
+
+  @if ($flex-wrap !=null) {
+    flex-wrap: $flex-wrap;
+  }
+}
+
+:root {
+  // --el-text-color-regular: #fff;
+}
