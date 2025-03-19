@@ -1,19 +1,21 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
-import router from '@/router'  // 确保已引入路由实例
+import router from '@/router/index' // 确保已引入路由实例
+import { refreshToken } from '@/apis/user'
 const baseURL = import.meta.env.VITE_API_URL
-
+let isRefreshing = false // 是否正在刷新 Token
+let failedQueue: Array<() => void> = [] // 存储失败的请求
 // 创建基础 axios 实例
 const request = axios.create({
   baseURL,
   headers: {
     'Content-Type': 'application/json;charset=utf-8',
-  }
+  },
 })
 
 // 请求拦截器 - 添加 token
-request.interceptors.request.use(config => {
-  const token = localStorage.getItem('token')
+request.interceptors.request.use((config) => {
+  const token = localStorage.getItem('accessToken')
   if (token) {
     config.headers.Authorization = `Bearer ${token.replace('Bearer ', '')}`
   }
@@ -22,48 +24,60 @@ request.interceptors.request.use(config => {
 
 // 响应拦截器 - 处理 401 错误
 request.interceptors.response.use(
-  response => response.data,
-  error => {
+  (response) => response.data,
+  async (error) => {
+    const originalRequest = error.config
     if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      router.replace('/login')
+      // if (isRefreshing) {
+      //   // 如果正在刷新 Token，将请求加入队列
+      //   return new Promise((resolve) => {
+      //     failedQueue.push(() => resolve(request(originalRequest)))
+      //   })
+      // }
+
+      // originalRequest._retry = true
+      // isRefreshing = true
+      // try {
+      //   // 使用 Refresh Token 刷新 Access Token
+      //   const newAccessToken = await refreshAccessToken()
+      //   if (newAccessToken) {
+      //     // 更新请求头中的 Access Token
+      //     originalRequest.headers = originalRequest.headers || {}
+      //     originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
+
+      //     // 重新发送原始请求
+      //     return request(originalRequest)
+      //   }
+      // } catch (refreshError) {
+      //   // 刷新 Token 失败，跳转到登录页
+      //   localStorage.removeItem('token')
+      //   localStorage.removeItem('refreshToken')
+      //   window.location.href = '/login'
+      //   return Promise.reject(refreshError)
+      // } finally {
+      //   isRefreshing = false
+      //   // 重新发送队列中的请求
+      //   failedQueue.forEach((cb) => cb())
+      //   failedQueue = []
+      // }
     }
     return Promise.reject(error)
   }
 )
 
-// 核心刷新用户信息方法
-export const updateUserInfo = async () => {
-  try {
-    // 先检查本地是否存在 token
-    const token = localStorage.getItem('token')
-    if (!token) {
-      router.replace('/login')
-      return
-    }
-
-    // 调用用户信息接口
-    const { data } = await request.get('/auth/userInfo')
-    
-    // 这里可以处理用户信息存储逻辑
-    console.log('用户信息更新成功:', data)
-    return data
-    
-  } catch (error) {
-    console.error('用户信息更新失败:', error)
-    localStorage.removeItem('token')
-    router.replace('/login')
-    throw error
+async function refreshAccessToken(): Promise<string | null> {
+  if (!refreshToken) {
+    throw new Error('Refresh Token 不存在')
   }
-}
 
-// 在应用初始化时调用（比如 main.ts）
-export const initApp = async () => {
   try {
-    await updateUserInfo()
-    console.log('用户状态刷新成功，保持当前页面')
-  } catch {
-    console.log('用户状态已过期，跳转登录')
+    const refresh = localStorage.getItem('refreshToken')
+    const accessToken = localStorage.getItem('accessToken')
+    const response = await refreshToken({ accessToken, refreshToken: refresh })
+    localStorage.setItem('accessToken', accessToken)
+    return accessToken
+  } catch (error) {
+    throw new Error('刷新 Access Token 失败')
   }
 }
 

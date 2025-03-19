@@ -79,6 +79,7 @@ import router from '@/router/index'
 import storage from '@/utils/storage'
 import { Comp, CompTypeInterface } from './user-operating/consts.types'
 import { computed, onMounted, reactive, toRefs } from 'vue'
+import { getUserInfo } from '@/apis/user'
 
 const store = useGlobalStore()
 const user = useStore()
@@ -111,19 +112,18 @@ const handleClickImage = () => {
 let handleOpenUserModal = () => {
   console.log('打开modal')
 }
-let handleSignOut = () => {
-  console.log('我被弹出')
-  router.replace({
-    name: 'Login',
-  })
-  storage.remove('token')
-  store.$reset()
+const handleSignOut = () => {
+  user.logout()
+  // resetDynamicRoutes() // 新增路由重置
+  router.replace('/login')
 }
 const init = async () => {
   // const res = await user.updageUserInfo()
+  const result = await getUserInfo()
+  console.log(result, 'd')
 }
 onMounted(() => {
-  // init()
+  init()
 })
 </script>
 <style lang="scss" scoped>

@@ -28,6 +28,8 @@ import { onMounted, ref, toRefs } from 'vue'
 import userStore from '@/store/user'
 import { storeToRefs } from 'pinia'
 import { register } from '@/apis/user'
+import { ElMessage } from 'element-plus'
+import router from '@/router/index'
 const user = userStore()
 
 const form = ref({
@@ -36,22 +38,17 @@ const form = ref({
 })
 
 const onSubmit = async () => {
-  console.log('登录信息:', form.value)
-  await user.login(form.value)
-  user.redirectFirst()
-  // user.mockLogin().then((res) => {
-  //   user.redirectFirst()
-  // })
+  try {
+    const res = await user.login(form.value.username, form.value.password)   // loginRedirect()
+  } catch (error) {
+    ElMessage.error('登录失败')
+  }
 }
 const onSubmitRegister = () => {
   console.log('登录信息:', form.value)
-  user.register(form.value).then((res) => {
-    // let access_token = res.data.access_token
-    // console.log(access_token, '--res--')
-  })
-  // user.mockLogin().then((res) => {
-  //   user.redirectFirst()
-  // })
+  user
+    .register({ username: form.value.username, password: form.value.password })
+    .then((res) => {})
 }
 onMounted(() => {})
 </script>

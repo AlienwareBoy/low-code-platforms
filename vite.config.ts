@@ -45,7 +45,7 @@ export default defineConfig({
     proxy: {
       // 配置 API 代理
       '/api': {
-        target: 'http://192.168.3.6:3000',
+        target: 'http://192.168.3.9:3000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },

@@ -1,5 +1,22 @@
-# Vue 3 + TypeScript + Vite
+# 注意事项
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+## 接口地址注意修改
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+vite.config.ts
+
+```
+'/api': {
+    target: 'http://192.168.3.9:3000',
+    changeOrigin: true,
+    rewrite: (path) => path.replace(/^\/api/, ''),
+},
+```
+
+.env.development
+
+```
+VITE_API_URL=http://192.168.3.9:3000
+VITE_DEBUG=true
+VITE_BASE_URL=/dev/
+
+```

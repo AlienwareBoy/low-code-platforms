@@ -1,9 +1,13 @@
 import request from '@/utils/request'
+import { RouteRecordRaw } from 'vue-router'
 
 /**
  * 登陆
  * */
-export function login(data: { username: string; password: string }) {
+export function login(data: {
+  username: string
+  password: string
+}): Promise<UserResponse> {
   return request({
     url: '/auth/login',
     method: 'post',
@@ -14,7 +18,6 @@ export function login(data: { username: string; password: string }) {
  * 注册
  * */
 export function register(data: { username: string; password: string }) {
-  console.log(data.password)
   return request({
     url: '/user/register',
     method: 'post',
@@ -43,13 +46,23 @@ export function logout() {
 /**
  * 刷新token
  * */
-export function refreshUserToken(data: {
+export function refreshToken(data: {
   accessToken: string | undefined
   refreshToken: string | undefined
 }) {
   return request({
-    url: '/auth/refresh-token',
+    url: '/auth/refreshToken',
     method: 'post',
     data,
   })
+}
+
+// 添加响应类型定义
+interface UserResponse {
+  data: {
+    token: string
+    access_token: string
+    auths: string[]
+    refreshToken: string
+  }
 }

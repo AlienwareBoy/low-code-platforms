@@ -1,6 +1,6 @@
 <!--  -->
 <template>
-  <div>{{ num }}</div>
+  <div class="color">{{ num }}</div>
 </template>
 
 <script lang="ts" setup>
@@ -11,4 +11,8 @@ interface DataProps {
 const state = reactive<DataProps>({ num: 3 })
 const { num } = toRefs(state)
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.color{
+  color: #000;
+}
+</style>
